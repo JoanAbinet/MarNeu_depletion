@@ -1,0 +1,128 @@
+---
+title: "06-Neutrophils Processing"
+author: "Joan Abinet"
+date: "`r format (Sys.time(), format='%Y-%m-%d %H:%M:%S %z')`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+  header-includes:
+    -|
+    ```{=latex}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      breaksymbolleft={}, 
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
+    ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 70), tidy = TRUE)
+```
+
+\newpage
+
+# Introduction
+
+Lung MarNeu (CD45+, CD11b+ and Ly6G+) were FACS-sorted as living singlet from lung single-cell suspensions pooled from 4 mice per condition: control d14 a-Ly6G, d14 a-CXCR2. For each sample, an aliquot of Trypan blue-treated cells was examined under the microscope for counting, viability and aggregate assessment following FACS sorting. Viability was above 90% for all samples and no aggregates were observed. Cell preparations were centrifuged and pellets were resuspended in calcium- and magnesium-free PBS containing 0.4 mg ml-1 UltraPure BSA (Thermo Fisher Scientific). 
+
+Single-cell RNA sequencing was performed using the 10x Genomics Chromium Next GEM Single Cell 3’ v3.1 kit. For the neutrophils, a total of 6000 cells were loaded per sample, 3 samples processed on a single chip using the Chromium Controller instrument. The manufacturer’s protocol was strictly followed throughout the procedure. cDNA quality and fragment size distribution were assessed using the Agilent High Sensitivity DNA Kit on a Fragment Analyzer. Final libraries were quality-checked on a QIAxcel system (Qiagen), quantified by qPCR (Roche), and pooled in equimolar amounts."
+
+Sequencing was performed on an Illumina NovaSeq 6000 system using an S4 flow cell with paired-end 2×150 bp reads (Read1: 150 cy, read2: 150 cy, index1:10cy, index2: 10cy), targeting a depth of 30,000 reads per cell for each sample. Raw sequencing data were demultiplexed using sample-specific indexes, quality-filtered, and converted into FASTQ files using bcl2fastq. Sequencing data quality was evaluated per sample using FastQC, and summarized across all samples using MultiQC.
+
+The Cell Ranger (v6.1.2) application (10x Genomics) was then used to demultiplex the BCL files into FASTQ files (cellranger mkfastq), to perform alignment (using Cell Ranger human genome references  6.1.2 GRCm38/release 102), filtering and unique molecular identifier counting and to produce gene-barcode matrices (cellranger count).
+
+# Loading packages
+```{r}
+suppressMessages({
+  library(dplyr)
+  library(Seurat)
+  library(patchwork)
+  library(ggplot2)
+  library(formatR)
+  library(SingleR)
+})
+```
+
+# Loading Data
+Can be downloaded from GEO
+```{r, message=FALSE, warning=FALSE, results= "hide"}
+# Specify your 10x directory
+all_dirs <- list.dirs(path = "Counts", full.names = TRUE, recursive = F)
+
+list_sample_name <- c("acxcr2", "aLy6G", "PBS")
+
+list_sample <- list()
+for (i in 1:length(all_dirs)) {
+  
+  sample_file <- all_dirs[i]
+  Seq_raw_file <- Read10X(data.dir = sample_file)
+  Seurat_file <- CreateSeuratObject(counts = Seq_raw_file, project = list_sample_name[i], min.cells = 3, min.features =   200)
+  list_sample <- append(list_sample, Seurat_file)
+}
+
+neutro_depletion <- merge(list_sample[[1]], y = list_sample[-1], add.cell.ids = c("1","2","3"), project = "Neutrophils depletion")
+```
+
+# Quality Control
+```{r, fig.width= 8, fig.height=6}
+neutro_depletion[["percent.mt"]] <- PercentageFeatureSet(neutro_depletion, pattern = "^mt-")
+VlnPlot(neutro_depletion, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+```
+
+# Pre-processing workflow
+```{r, message=FALSE, warning=FALSE, results= "hide"}
+# The cells with high quantity of gene expressed are probably doublets or belong to another cell types and were subsequently removed
+neutro_depletion <- subset(neutro_depletion, subset = nFeature_RNA > 500 & nFeature_RNA < 1900 & nCount_RNA < 25000 & percent.mt < 5)
+
+p1 <- VlnPlot(neutro_depletion, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3, group.by = "orig.ident")
+
+neutro_depletion <- NormalizeData(neutro_depletion, normalization.method = "LogNormalize", scale.factor = 10000)
+
+neutro_depletion <- FindVariableFeatures(neutro_depletion, selection.method = "vst", nfeatures = 2000) 
+
+all.genes <- rownames(neutro_depletion)
+neutro_depletion <- ScaleData(neutro_depletion, features = all.genes)
+
+neutro_depletion <- RunPCA(neutro_depletion, features = VariableFeatures(object = neutro_depletion))
+
+p2 <- DimPlot(neutro_depletion, reduction = "pca")
+
+p3 <- ElbowPlot(neutro_depletion,ndims = 20)
+```
+
+
+```{r fig.width=12, fig.height=10}
+p1+ p2 + p3 
+```
+
+# Uniform Manifold Approximation and Projection + Clustering
+```{r, message=FALSE, warning=FALSE, results= "hide"}
+neutro_depletion <- FindNeighbors(neutro_depletion, dims = 1:15)
+neutro_depletion <- FindClusters(neutro_depletion, resolution = 0.4)
+neutro_depletion <- RunUMAP(neutro_depletion, dims = 1:15)
+```
+
+```{r}
+DimPlot(neutro_depletion, reduction = "umap", label = T)
+#ggsave("plots/Umap_0.4.png", width = 10, height = 6)
+```
+
+```{r}
+DimPlot(neutro_depletion, reduction = "umap", split.by = "orig.ident")
+#ggsave("plots/UMAP_Splited.png", width = 10, height = 6)
+```
+
+# Saving file
+```{r, eval = FALSE}
+saveRDS(neutro_depletion, "neutro_depleted_Part1.rds")
+```
+
+```{r}
+sessionInfo()
+```
+

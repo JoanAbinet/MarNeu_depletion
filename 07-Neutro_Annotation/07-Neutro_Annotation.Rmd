@@ -1,0 +1,158 @@
+---
+title: "2-Cluster caracterization"
+author: "Joan Abinet"
+date: "`r format (Sys.time(), format='%Y-%m-%d %H:%M:%S %z')`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+  header-includes:
+    -|
+    ```{=latex}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      breaksymbolleft={}, 
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
+    ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 70), tidy = TRUE)
+```
+
+\newpage
+
+# Introduction
+
+A total of 8 clusters of neutrophils were obtained using the FindClusters function (15 Principal Components were included and a resolutions of 0.25 was selected) and the differentially expressed genes (DEGs) were calculated using the FindAllMarkers function (Seurat package).
+
+# Loading packages
+```{r}
+suppressMessages({
+  library(dplyr)
+  library(Seurat)
+  library(patchwork)
+  library(ggplot2)
+  library(formatR)
+  library(SingleR)
+  library(dittoSeq)
+  library(ComplexHeatmap)
+})
+```
+
+# Loading data
+```{r}
+neutro_depletion <- readRDS("../06-Neutrophils_Processing/neutro_depleted_Part1.rds")
+
+color_neut <- c("#1f77b4", "#ff7f0e", "lightgreen", "#d62728", "#9467bd", "grey", "#e377c2", "#8c564b")
+DimPlot(neutro_depletion, cols = color_neut)
+#ggsave("plot/umap.pdf", width = 6, height = 4)
+```
+
+# Cluster Frequency
+```{r}
+dittoBarPlot(neutro_depletion, "seurat_clusters", group.by = "orig.ident", main ="", x.labels = c("acxcr2", "aLy6G", "PBS"), x.labels.rotate = F, xlab = "Sample", color.panel = color_neut)
+#ggsave("plot/cluster_freq.pdf", width = 10, height = 6)
+```
+
+
+# Visualisation
+
+## Neutro PBS 
+```{r}
+neutro_depletion_PBS <- subset(neutro_depletion, orig.ident %in% "PBS")
+
+DimPlot(neutro_depletion_PBS, reduction = "umap", cols = color_neut, group.by = "seurat_clusters") + plot_annotation(
+  title = 'Neutrophils - PBS',
+  theme = theme(plot.title = element_text(size = 16, hjust = 0.5)))
+
+#ggsave("plot/UMAP_PBS.pdf", width = 6, height = 4)
+```
+
+## Neutro post depletion by aLy6g
+```{r}
+neutro_depletion_aLy6G <- subset(neutro_depletion, orig.ident %in% "aLy6G")
+
+DimPlot(neutro_depletion_aLy6G, reduction = "umap", cols = color_neut, group.by = "seurat_clusters") + plot_annotation(
+  title = 'Neutrophils - aLy6G',
+  theme = theme(plot.title = element_text(size = 16, hjust = 0.5)))
+
+#ggsave("plot/UMAP_aLy6G.pdf", width = 6, height = 4)
+```
+
+## Neutro post depletion by aCXCR2
+```{r}
+neutro_depletion_acxcr2 <- subset(neutro_depletion, orig.ident %in% "acxcr2")
+
+DimPlot(neutro_depletion_acxcr2, reduction = "umap", cols = color_neut, group.by = "seurat_clusters") + plot_annotation(
+  title = 'Neutrophils - acxcr2',
+  theme = theme(plot.title = element_text(size = 16, hjust = 0.5)))
+
+#ggsave("plot/UMAP_acxcr2.pdf", width = 6, height = 4)
+```
+
+# Feature Plot 
+
+```{r}
+FeaturePlot(neutro_depletion, features = c("S100a8"))
+#ggsave("plot/Feature_S100a8.pdf", width = 6, height = 4)
+```
+
+```{r}
+FeaturePlot(neutro_depletion, features = c("S100a9"))
+#ggsave("plot/Feature_S100a9r.pdf", width = 6, height = 4)
+```
+
+```{r}
+FeaturePlot(neutro_depletion, features = c("Csf3r"))
+#ggsave("plot/Feature_Csf3r.pdf", width = 6, height = 4)
+```
+
+# Heatmap DE gene per cluster
+```{r, message=FALSE, warning=FALSE, results= "hide"}
+clusters.markers <- FindAllMarkers(neutro_depletion, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+
+clusters.markers %>%
+    group_by(cluster) %>%
+    slice_max(n = 10, order_by = avg_log2FC)-> top10
+
+mat <- as.matrix( GetAssayData(object = neutro_depletion, slot = "data")[as.character(top10$gene),])
+
+df <- as.data.frame(neutro_depletion$seurat_clusters)
+colnames(df) <- "Clusters"
+color_df <- list(Clusters = c("0" = "#1f77b4", 
+                              "1" = "#ff7f0e", 
+                              "2" = "lightgreen", 
+                              "3" = "#d62728", 
+                              "4" = "#9467bd", 
+                              "5" = "grey", 
+                              "6" = "#e377c2",
+                              "7" = "#8c564b"))
+
+Heatmap<- Heatmap(t(scale(t(mat))), show_column_names = F,
+        column_split = neutro_depletion$seurat_clusters,
+        cluster_column_slices = F,
+        cluster_rows = F,
+        top_annotation = HeatmapAnnotation(df = df, col = color_df),
+        use_raster = F,
+        show_heatmap_legend = F,
+        show_column_dend = F,
+        column_title_rot = 90,
+        row_names_side = "left")
+
+#tidyHeatmap::save_pdf(Heatmap, "plot/Heatmap_cluster_neutro.pdf", width = 25, height = 35, units ="cm")        
+```
+
+```{r, fig.width=10, fig.height=20}
+Heatmap
+```
+
+
+```{r}
+sessionInfo()
+```
+

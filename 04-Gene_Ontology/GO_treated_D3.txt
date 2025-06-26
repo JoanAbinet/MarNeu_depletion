@@ -1,0 +1,27 @@
+
+
+
+
+
+Analysis Type:	PANTHER Overrepresentation Test (Released 20240807)
+Annotation Version and Release Date:	GO Ontology database DOI:  10.5281/zenodo.15066566 Released 2025-03-16
+Analyzed List:	upload_1 (Mus musculus)
+Reference List:	Mus musculus (all genes in database)
+Test Type:	FISHER
+Correction:	FDR
+GO biological process complete	Mus musculus - REFLIST (21836)	upload_1 (30)	upload_1 (expected)	upload_1 (over/under)	upload_1 (fold Enrichment)	upload_1 (raw P-value)	upload_1 (FDR)
+cellular response to cycloheximide (GO:0071409)	2	2	.00	+	 > 100	1.82E-06	5.56E-03
+cellular response to laminar fluid shear stress (GO:0071499)	6	2	.01	+	 > 100	2.73E-05	3.78E-02
+response to cycloheximide (GO:0046898)	6	2	.01	+	 > 100	2.73E-05	3.47E-02
+translation at presynapse (GO:0140236)	47	4	.06	+	61.95	4.95E-07	7.55E-03
+translation at postsynapse (GO:0140242)	48	4	.07	+	60.66	5.40E-07	4.12E-03
+translation at synapse (GO:0140241)	48	4	.07	+	60.66	5.40E-07	2.74E-03
+cellular response to interleukin-1 (GO:0071347)	77	4	.11	+	37.81	3.65E-06	9.28E-03
+response to interleukin-1 (GO:0070555)	99	4	.14	+	29.41	9.95E-06	2.17E-02
+cytoplasmic translation (GO:0002181)	131	5	.18	+	27.78	9.09E-07	3.47E-03
+translation (GO:0006412)	386	6	.53	+	11.31	1.22E-05	2.32E-02
+negative regulation of molecular function (GO:0044092)	666	7	.92	+	7.65	2.63E-05	4.00E-02
+cellular response to cytokine stimulus (GO:0071345)	859	8	1.18	+	6.78	1.50E-05	2.55E-02
+response to cytokine (GO:0034097)	986	8	1.35	+	5.91	4.05E-05	4.41E-02
+response to peptide (GO:1901652)	1003	8	1.38	+	5.81	4.57E-05	4.64E-02
+positive regulation of metabolic process (GO:0009893)	3717	15	5.11	+	2.94	3.34E-05	3.92E-02

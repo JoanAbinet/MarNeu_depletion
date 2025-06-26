@@ -1,0 +1,39 @@
+
+
+
+
+
+Analysis Type:	PANTHER Overrepresentation Test (Released 20240807)
+Annotation Version and Release Date:	GO Ontology database DOI:  10.5281/zenodo.15066566 Released 2025-03-16
+Analyzed List:	upload_1 (Mus musculus)
+Reference List:	Mus musculus (all genes in database)
+Test Type:	FISHER
+Correction:	FDR
+GO biological process complete	Mus musculus - REFLIST (21836)	upload_1 (22)	upload_1 (expected)	upload_1 (over/under)	upload_1 (fold Enrichment)	upload_1 (raw P-value)	upload_1 (FDR)
+positive regulation of leukocyte adhesion to vascular endothelial cell (GO:1904996)	27	3	.03	+	 > 100	2.56E-06	1.30E-02
+regulation of leukocyte adhesion to vascular endothelial cell (GO:1904994)	35	3	.04	+	85.08	5.69E-06	1.73E-02
+leukocyte cell-cell adhesion (GO:0007159)	63	3	.06	+	47.26	3.39E-05	3.97E-02
+negative regulation of blood pressure (GO:0045776)	70	3	.07	+	42.54	4.65E-05	3.73E-02
+JNK cascade (GO:0007254)	75	3	.08	+	39.70	5.72E-05	3.96E-02
+positive regulation of myeloid leukocyte differentiation (GO:0002763)	77	3	.08	+	38.67	6.19E-05	4.10E-02
+positive regulation of leukocyte migration (GO:0002687)	172	4	.17	+	23.08	2.43E-05	3.09E-02
+regulation of tumor necrosis factor superfamily cytokine production (GO:1903555)	201	4	.20	+	19.75	4.48E-05	3.79E-02
+positive regulation of leukocyte cell-cell adhesion (GO:1903039)	281	5	.28	+	17.66	7.50E-06	1.90E-02
+positive regulation of cell-cell adhesion (GO:0022409)	336	5	.34	+	14.77	1.78E-05	2.71E-02
+regulation of leukocyte cell-cell adhesion (GO:1903037)	387	5	.39	+	12.82	3.50E-05	3.81E-02
+response to lipopolysaccharide (GO:0032496)	387	5	.39	+	12.82	3.50E-05	3.56E-02
+response to molecule of bacterial origin (GO:0002237)	406	5	.41	+	12.22	4.40E-05	4.19E-02
+inflammatory response (GO:0006954)	599	7	.60	+	11.60	1.34E-06	1.03E-02
+positive regulation of cytokine production (GO:0001819)	538	6	.54	+	11.07	1.16E-05	2.53E-02
+positive regulation of immune system process (GO:0002684)	1112	9	1.12	+	8.03	6.08E-07	9.26E-03
+regulation of cell migration (GO:0030334)	1039	7	1.05	+	6.69	4.92E-05	3.57E-02
+regulation of cell motility (GO:2000145)	1103	7	1.11	+	6.30	7.19E-05	4.57E-02
+regulation of immune system process (GO:0002682)	1733	10	1.75	+	5.73	2.57E-06	9.79E-03
+regulation of programmed cell death (GO:0043067)	1662	9	1.67	+	5.37	1.68E-05	2.84E-02
+biological process involved in interspecies interaction between organisms (GO:0044419)	1699	9	1.71	+	5.26	2.00E-05	2.77E-02
+response to other organism (GO:0051707)	1560	8	1.57	+	5.09	8.60E-05	5.24E-02
+defense response (GO:0006952)	1563	8	1.57	+	5.08	8.72E-05	5.11E-02
+response to external biotic stimulus (GO:0043207)	1564	8	1.58	+	5.08	8.76E-05	4.94E-02
+response to external stimulus (GO:0009605)	2102	10	2.12	+	4.72	1.46E-05	2.78E-02
+positive regulation of multicellular organismal process (GO:0051240)	1897	9	1.91	+	4.71	4.83E-05	3.68E-02
+regulation of response to stimulus (GO:0048583)	4222	13	4.25	+	3.06	4.42E-05	3.96E-02

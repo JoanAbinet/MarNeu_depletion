@@ -1,0 +1,109 @@
+---
+title: "3-Comparison-Condition"
+author: "Joan Abinet"
+date: "`r format (Sys.time(), format='%Y-%m-%d %H:%M:%S %z')`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+  header-includes:
+    -|
+    ```{=latex}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      breaksymbolleft={}, 
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
+    ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 70), tidy = TRUE)
+```
+
+\newpage
+
+# Introduction
+
+Differentially expressed genes (DEGs) between the MarNeu depleted and control conditions were identified for each cluster using the FindMarkers function from the Seurat package. Genes with an adjusted p-value < 0.05 and an average log fold change (logFC) > 0.25 or < -0.25 were considered significantly differentially expressed between the two conditions.
+
+# Loading packages
+```{r}
+suppressMessages({
+  library(dplyr)
+  library(Seurat)
+  library(patchwork)
+  library(ggplot2)
+  library(formatR)
+  library(SingleR)
+  library(dittoSeq)
+  library(ComplexHeatmap)
+  library(ggrepel)
+  library(xlsx)
+})
+```
+
+# Loading data
+```{r}
+neutro_depletion <- readRDS("../06-Neutrophils_Processing/neutro_depleted_Part1.rds")
+```
+
+## Volcano_plot in gCap
+```{r}
+Markers_depletion <- FindMarkers(neutro_depletion, ident.1 = "PBS", ident.2 = c("acxcr2","aLy6G" ), min.pct = 0.25, group.by = "orig.ident", logfc.threshold = 0)
+
+#Markers_depletion <- Markers_depletion[Markers_depletion$p_val_adj < 0.05,]
+#write.xlsx(Markers_depletion, "plot/DE_gene_neutro.xlsx", sheetName = "Whole", col.names = T, append = T)
+
+
+Markers_depletion$category <- ifelse(Markers_depletion$p_val_adj < 0.05 & abs(Markers_depletion$avg_log2FC) > 0.25, "overexpressed",ifelse(Markers_depletion$p_val_adj < 0.05 & Markers_depletion$avg_log2FC < 0.25, "significative", "no significant"))
+
+Markers_depletion <- Markers_depletion[order(Markers_depletion$avg_log2FC, decreasing = T),]
+
+gene_to_highlight <- c("Tnf", "Ccl3", "Il1a", "Icam1", "Ptafr", "Sod2", "Cxcr4", "Tlr2","Irf1", "Tnfaip3", "Ncf1")
+Markers_depletion$label <- NA
+Markers_depletion$label <- rownames(Markers_depletion)
+
+
+ggplot(data = Markers_depletion, aes(x = avg_log2FC, y = -log10(p_val_adj), col = category))+
+  geom_point(size = 2, alpha = 1) + 
+  theme_classic()+
+  scale_color_manual(values = c("black", "red", "blue"))+
+  geom_text_repel(data = Markers_depletion[rownames(Markers_depletion) %in% gene_to_highlight,], size = 4, aes(label=gene_to_highlight, fontface = "italic"), colour = "black", force = 5, box.padding = 0.5)+
+  NoLegend() +
+  ylab(expression(-Log[10]*" P"))+
+  xlab("LogFoldChange")+
+  theme()+
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", col = "grey")+
+  geom_vline(xintercept = c(-0.25,0.25), linetype = "dashed", col = "grey")
+
+#ggsave("plot/Volcano_neutro.pdf", width = 8, height = 5)
+```
+
+# DE per cluster
+```{r}
+for (Cluster in unique(neutro_depletion$seurat_clusters)) {
+  
+  subset_neutro <- subset(neutro_depletion, seurat_clusters %in% Cluster)
+  
+  Markers_cond <- FindMarkers(subset_neutro, ident.1 = "PBS", ident.2 = c("acxcr2","aLy6G"), min.pct = 0.1, group.by = "orig.ident", logfc.threshold = 0.25)
+  
+  Markers_cond <- Markers_cond[Markers_cond$p_val_adj < 0.05,]
+  #write.xlsx(Markers_cond, "plot/DE_gene_neutro.xlsx", sheetName = Cluster, col.names = T, append = T)
+  
+  print(paste0("The number of DEG for ",Cluster," is ", length(rownames(Markers_cond))))
+}
+```
+
+```{r}
+DotPlot(neutro_depletion, features = c("Tnf", "Arhgef2", "Ccl3", "Rilpl2", "Ptafr", "Il1a", "Fpr1", "Cd274", "Icam1"), group.by = "orig.ident")+ theme(axis.text.x = element_text(angle = 54, hjust = 1))
+#ggsave("plot/dotplot_gene_neutro.pdf", width = 7, height = 4)
+```
+
+
+```{r}
+sessionInfo()
+```

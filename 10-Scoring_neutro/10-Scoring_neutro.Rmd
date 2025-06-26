@@ -1,0 +1,171 @@
+---
+title: "5-Scoring"
+author: "Joan Abinet"
+date: "`r format (Sys.time(), format='%Y-%m-%d %H:%M:%S %z')`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+  header-includes:
+    -|
+    ```{=latex}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      breaksymbolleft={}, 
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
+    ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 65), tidy = TRUE)
+```
+
+\newpage
+
+# Introduction
+
+Gene signatures specific of transcriptional change in neutrophils were obtained by selecting the top 20 genes with the highest absolute log fold-change in each condition (control and MarNeu-targeted). The 2 signatures were then tested on neutrophils from different tissues (from GSE142754), using the AddModuleScore function.
+
+
+# Loading packages
+```{r}
+suppressMessages({
+  library(dplyr)
+  library(Seurat)
+  library(patchwork)
+  library(ggplot2)
+  library(formatR)
+  library(dittoSeq)
+  library(ggrepel)
+  library(xlsx)
+})
+```
+
+# Loading annotated Cell
+```{r}
+neutro_depletion <- readRDS("../06-Neutrophils_Processing/neutro_depleted_Part1.rds")
+```
+
+# loading Tissue leukocyte from GSE142754
+I didn't include the sample PBZT13_2 that seemed to have problems
+```{r}
+# specify the directory where you saved the download the cellranger output
+all_dirs <- list.dirs(path =  "Data" , full.names = TRUE, recursive = F)
+
+list_sample_name <- c("BM1", "BM2", "Lung1", "Lung2", "PBZT5", "PBZT13_1", "Spleen1", "Spleen2")
+
+list_sample <- list()
+for (i in 1:length(all_dirs)) {
+
+  sample_file <- all_dirs[i]
+  Seq_raw_file <- Read10X(data.dir = sample_file)
+  Seurat_file <- CreateSeuratObject(counts = Seq_raw_file, project = list_sample_name[i], min.cells = 3, min.features =   200)
+  
+  list_sample <- append(list_sample, Seurat_file)
+}
+list_sample
+
+tissue_leukocyte <- merge(list_sample[[1]], y = list_sample[-1], add.cell.ids = c("1","2","3","4", "5", "6", "7","8"), project = "Tissue_leukocyte")
+```
+
+## QC
+```{r}
+tissue_leukocyte[["percent.mt"]] <- PercentageFeatureSet(tissue_leukocyte, pattern = "^mt-")
+
+VlnPlot(tissue_leukocyte, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+```
+
+## Pre-processing workflow
+```{r}
+# Filtering
+tissue_leukocyte <- subset(tissue_leukocyte, subset = nFeature_RNA > 500 & percent.mt < 5)
+
+# Data  normalization 
+tissue_leukocyte <- NormalizeData(tissue_leukocyte, normalization.method = "LogNormalize", scale.factor = 10000)
+
+# Feature selection
+tissue_leukocyte <- FindVariableFeatures(tissue_leukocyte, selection.method = "vst", nfeatures = 2000) 
+top10 <- head(VariableFeatures(tissue_leukocyte), 10)
+p1 <- VariableFeaturePlot(tissue_leukocyte)
+p1 <- LabelPoints(plot = p1, points = top10, repel = T)
+
+# Scaling the data
+all.genes <- rownames(tissue_leukocyte)
+tissue_leukocyte <- ScaleData(tissue_leukocyte, features = all.genes)
+
+# linear dimensional reduction
+tissue_leukocyte <- RunPCA(tissue_leukocyte, features = VariableFeatures(object = tissue_leukocyte))
+p2 <- DimPlot(tissue_leukocyte, reduction = "pca")
+
+p3 <- ElbowPlot(tissue_leukocyte)
+```
+
+```{r, fig.width=15, fig.height=6}
+p1 +p2 + p3
+```
+
+## clustering
+```{r}
+tissue_leukocyte <- FindNeighbors(tissue_leukocyte, dims = 1:15)
+tissue_leukocyte <- FindClusters(tissue_leukocyte, resolution = 0.4)
+tissue_leukocyte <- RunTSNE(tissue_leukocyte, dims = 1:15, check_duplicates = FALSE)
+```
+
+
+```{r}
+DimPlot(tissue_leukocyte, reduction = "tsne", label = T)
+```
+
+```{r}
+FeaturePlot(tissue_leukocyte, features = c("S100a8", "Mmp9", "S100a9", "Csf3r"), reduction = "tsne")
+```
+
+Based on the expression of the 4 markers, the clusters 1,8,10,14,18 and 19 were identified as neutrophils
+
+# Create a subset with the neutrophils 
+```{r}
+tissue_neutrophils <- subset(tissue_leukocyte, subset = seurat_clusters %in% c(1,10,14,18,8,19))
+```
+
+# Calculate gene signature for the PBS and Treated cells
+```{r}
+Neutro.markers<- FindMarkers(neutro_depletion, ident.1 = "PBS", ident.2 = c("acxcr2","aLy6G"),  min.pct = 0.1, group.by = "orig.ident", logfc.threshold = 0.25)
+
+Neutro.markers <- Neutro.markers[Neutro.markers$p_val_adj<0.05,]
+
+Neutro.markers <- Neutro.markers[order(Neutro.markers$avg_log2FC, decreasing = T),]
+
+
+signature_PBS <- rownames(Neutro.markers)[1:60]
+signature_treated <- rownames(Neutro.markers)[61:81]
+```
+
+# Signature PBS
+```{r}
+tissue_neutrophils <- AddModuleScore(tissue_neutrophils,
+                  features = list(signature_PBS),
+                  name="PBS_score")
+
+VlnPlot(tissue_neutrophils, features = "PBS_score1", group.by = "orig.ident", pt.size = 0)
+#ggsave("vlnplot_PBS.png", width = 10, height = 7)
+```
+
+# Signature treated
+```{r}
+tissue_neutrophils <- AddModuleScore(tissue_neutrophils,
+                  features = list(signature_treated),
+                  name="treated_score")
+
+VlnPlot(tissue_neutrophils, features = "treated_score1", group.by = "orig.ident", pt.size = 0)
+# ggsave("vlnplot_Treated.png", width = 10, height = 7)
+```
+
+
+```{r}
+sessionInfo()
+```
+

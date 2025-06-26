@@ -1,0 +1,77 @@
+
+
+
+
+
+Analysis Type:	PANTHER Overrepresentation Test (Released 20240807)
+Annotation Version and Release Date:	GO Ontology database DOI:  10.5281/zenodo.15066566 Released 2025-03-16
+Analyzed List:	upload_1 (Mus musculus)
+Reference List:	Mus musculus (all genes in database)
+Test Type:	FISHER
+Correction:	FDR
+GO biological process complete	Mus musculus - REFLIST (21836)	upload_1 (29)	upload_1 (expected)	upload_1 (over/under)	upload_1 (fold Enrichment)	upload_1 (raw P-value)	upload_1 (FDR)
+cellular response to cycloheximide (GO:0071409)	2	2	.00	+	 > 100	1.70E-06	3.71E-03
+cellular response to laminar fluid shear stress (GO:0071499)	6	2	.01	+	 > 100	2.55E-05	1.18E-02
+response to cycloheximide (GO:0046898)	6	2	.01	+	 > 100	2.55E-05	1.14E-02
+response to laminar fluid shear stress (GO:0034616)	11	2	.01	+	 > 100	9.30E-05	2.63E-02
+negative regulation of muscle adaptation (GO:0014745)	13	2	.02	+	 > 100	1.32E-04	3.46E-02
+cellular response to peptide (GO:1901653)	16	2	.02	+	94.12	2.02E-04	4.74E-02
+response to progesterone (GO:0032570)	44	3	.06	+	51.34	2.69E-05	1.17E-02
+translation at presynapse (GO:0140236)	47	3	.06	+	48.06	3.28E-05	1.28E-02
+translation at postsynapse (GO:0140242)	48	3	.06	+	47.06	3.50E-05	1.33E-02
+translation at synapse (GO:0140241)	48	3	.06	+	47.06	3.50E-05	1.30E-02
+cytoplasmic translation (GO:0002181)	131	6	.17	+	34.49	1.76E-08	2.69E-04
+cellular response to hydrogen peroxide (GO:0070301)	80	3	.11	+	28.24	1.62E-04	3.97E-02
+negative regulation of ERK1 and ERK2 cascade (GO:0070373)	84	3	.11	+	26.89	1.87E-04	4.45E-02
+response to hydrogen peroxide (GO:0042542)	120	4	.16	+	25.10	1.85E-05	1.13E-02
+protein import into nucleus (GO:0006606)	122	4	.16	+	24.69	1.98E-05	1.16E-02
+import into nucleus (GO:0051170)	130	4	.17	+	23.17	2.54E-05	1.21E-02
+negative regulation of MAPK cascade (GO:0043409)	182	5	.24	+	20.69	3.84E-06	4.51E-03
+response to ketone (GO:1901654)	255	7	.34	+	20.67	3.42E-08	2.61E-04
+response to temperature stimulus (GO:0009266)	179	4	.24	+	16.83	8.84E-05	2.59E-02
+response to steroid hormone (GO:0048545)	291	6	.39	+	15.53	1.95E-06	3.72E-03
+response to reactive oxygen species (GO:0000302)	205	4	.27	+	14.69	1.49E-04	3.79E-02
+response to alcohol (GO:0097305)	313	6	.42	+	14.43	2.97E-06	4.54E-03
+protein localization to nucleus (GO:0034504)	210	4	.28	+	14.34	1.64E-04	3.96E-02
+muscle organ development (GO:0007517)	319	5	.42	+	11.80	5.74E-05	1.82E-02
+translation (GO:0006412)	386	6	.51	+	11.70	9.88E-06	7.53E-03
+striated muscle tissue development (GO:0014706)	375	5	.50	+	10.04	1.23E-04	3.35E-02
+muscle tissue development (GO:0060537)	397	5	.53	+	9.48	1.61E-04	4.01E-02
+negative regulation of intracellular signal transduction (GO:1902532)	745	7	.99	+	7.07	4.24E-05	1.43E-02
+response to lipid (GO:0033993)	958	8	1.27	+	6.29	2.51E-05	1.24E-02
+negative regulation of apoptotic process (GO:0043066)	993	8	1.32	+	6.07	3.25E-05	1.30E-02
+negative regulation of programmed cell death (GO:0043069)	1028	8	1.37	+	5.86	4.16E-05	1.44E-02
+positive regulation of transcription by RNA polymerase II (GO:0045944)	1308	10	1.74	+	5.76	4.03E-06	4.39E-03
+response to abiotic stimulus (GO:0009628)	1235	9	1.64	+	5.49	2.06E-05	1.12E-02
+regulation of apoptotic process (GO:0042981)	1613	11	2.14	+	5.13	3.44E-06	4.37E-03
+regulation of programmed cell death (GO:0043067)	1662	11	2.21	+	4.98	4.60E-06	4.38E-03
+negative regulation of signal transduction (GO:0009968)	1436	9	1.91	+	4.72	6.74E-05	2.06E-02
+positive regulation of RNA metabolic process (GO:0051254)	1820	11	2.42	+	4.55	1.10E-05	8.00E-03
+positive regulation of DNA-templated transcription (GO:0045893)	1692	10	2.25	+	4.45	3.87E-05	1.40E-02
+positive regulation of RNA biosynthetic process (GO:1902680)	1694	10	2.25	+	4.44	3.91E-05	1.39E-02
+negative regulation of signaling (GO:0023057)	1565	9	2.08	+	4.33	1.31E-04	3.51E-02
+negative regulation of cell communication (GO:0010648)	1568	9	2.08	+	4.32	1.33E-04	3.44E-02
+regulation of cell population proliferation (GO:0042127)	1751	10	2.33	+	4.30	5.19E-05	1.72E-02
+tissue development (GO:0009888)	1974	11	2.62	+	4.20	2.38E-05	1.21E-02
+response to oxygen-containing compound (GO:1901700)	1797	10	2.39	+	4.19	6.47E-05	2.01E-02
+negative regulation of response to stimulus (GO:0048585)	1844	10	2.45	+	4.08	8.06E-05	2.41E-02
+positive regulation of nucleobase-containing compound metabolic process (GO:0045935)	2034	11	2.70	+	4.07	3.16E-05	1.30E-02
+regulation of transcription by RNA polymerase II (GO:0006357)	2621	14	3.48	+	4.02	1.66E-06	4.21E-03
+positive regulation of macromolecule biosynthetic process (GO:0010557)	2656	13	3.53	+	3.69	1.26E-05	8.75E-03
+positive regulation of biosynthetic process (GO:0009891)	2789	13	3.70	+	3.51	2.16E-05	1.13E-02
+regulation of DNA-templated transcription (GO:0006355)	3345	15	4.44	+	3.38	5.27E-06	4.73E-03
+regulation of RNA biosynthetic process (GO:2001141)	3354	15	4.45	+	3.37	5.46E-06	4.62E-03
+positive regulation of macromolecule metabolic process (GO:0010604)	3386	15	4.50	+	3.34	6.15E-06	4.94E-03
+gene expression (GO:0010467)	2715	12	3.61	+	3.33	8.93E-05	2.57E-02
+regulation of nucleobase-containing compound metabolic process (GO:0019219)	3921	17	5.21	+	3.26	1.16E-06	4.41E-03
+regulation of RNA metabolic process (GO:0051252)	3617	15	4.80	+	3.12	1.41E-05	8.97E-03
+positive regulation of metabolic process (GO:0009893)	3717	15	4.94	+	3.04	1.98E-05	1.12E-02
+regulation of gene expression (GO:0010468)	4940	19	6.56	+	2.90	9.61E-07	4.89E-03
+regulation of macromolecule biosynthetic process (GO:0010556)	5056	19	6.71	+	2.83	1.40E-06	4.28E-03
+response to chemical (GO:0042221)	4053	15	5.38	+	2.79	5.73E-05	1.86E-02
+regulation of biosynthetic process (GO:0009889)	5265	19	6.99	+	2.72	2.70E-06	4.57E-03
+regulation of primary metabolic process (GO:0080090)	5439	19	7.22	+	2.63	4.55E-06	4.62E-03
+regulation of macromolecule metabolic process (GO:0060255)	5938	20	7.89	+	2.54	3.28E-06	4.55E-03
+positive regulation of cellular process (GO:0048522)	6128	19	8.14	+	2.33	2.96E-05	1.25E-02
+regulation of metabolic process (GO:0019222)	6457	20	8.58	+	2.33	1.33E-05	8.84E-03
+positive regulation of biological process (GO:0048518)	6431	19	8.54	+	2.22	1.02E-04	2.83E-02

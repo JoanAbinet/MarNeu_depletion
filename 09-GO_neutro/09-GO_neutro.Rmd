@@ -1,0 +1,67 @@
+---
+title: "09-GO_neutro"
+author: "Joan Abinet"
+date: "`r format (Sys.time(), format='%Y-%m-%d %H:%M:%S %z')`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+  header-includes:
+    -|
+    ```{=latex}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      breaksymbolleft={}, 
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
+    ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 65), tidy = TRUE)
+```
+
+
+\newpage
+
+# Introduction
+
+Gene Ontology (GO) enrichment analysis was performed using the web-based tool provided by the Gene Ontology Consortium (http://geneontology.org/) on 2025-06-25, using the GO database release from 2025-06-01. For each experimental condition, the top 30 differentially expressed genes ranked by their average log fold change were selected for GO analysis. Enrichment was assessed separately for each gene list, and results were obtained for the "Biological Process" category. Relevant enriched GO terms were visualized using the ggplot2 package. The gene ratio for each GO term was calculated as the number of enriched genes in the gene list divided by the total number of genes in a pathway.
+
+# Loading packages
+```{r}
+suppressMessages({
+  library(dplyr)
+  library(Seurat)
+  library(patchwork)
+  library(ggplot2)
+  library(formatR)
+  library(xlsx)
+  library(tidyverse)
+})
+```
+
+# Gene ontology from Neutro PBS DEGs
+
+```{r}
+# Loading gene geneontology.org
+GO_Neutro <- read.table("GO_PBS_neutro.txt", skip = 11, header = T, sep = "\t")
+GO_Neutro <- GO_Neutro[c(1,3,7,8,12,14,15,27),c(1:3,6,8)]
+colnames(GO_Neutro) <- c("GO", "REF", "Count", "FoldEnrichment", "FDR")
+GO_Neutro$`Gene ratio` <- GO_Neutro$Count/GO_Neutro$REF
+GO_Neutro$GO <- str_sub(GO_Neutro$GO, 1, str_length(GO_Neutro$GO)-13)
+GO_Neutro$GO <- fct_rev(factor(GO_Neutro$GO, levels = GO_Neutro$GO))
+
+ggplot(GO_Neutro, aes(x = Count/REF,y =GO, size = Count, color = FDR)) + geom_point() + ggtitle("Gene Onotology Neutro PBS") + scale_color_gradient(low = "red", high = "blue") + theme_bw()+ scale_size(limit = c(3,13) ,range = c(3,10))+
+  xlab("Gene ratio")
+# ggsave("GO_Neutro_Pbs.pdf", width = 8, height = 5)
+```
+
+
+```{r}
+sessionInfo()
+```
+
