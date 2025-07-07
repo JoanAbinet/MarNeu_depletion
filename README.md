@@ -1,21 +1,21 @@
 Include all the codes for bioinformatics analysis in **Lung-marginated neutrophils regulate capillary blood flow to safeguard blood oxygenation and endothelial fitness.**
 
 # Session info
-R version 4.3.3 (2024-02-29)
-Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 24.04.2 LTS
+R version 4.3.3 (2024-02-29) \
+Platform: x86_64-pc-linux-gnu (64-bit) \
+Running under: Ubuntu 24.04.2 LTS \
 
 Matrix products: default
 BLAS: /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
 LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so; LAPACK version 3.12.0
 
 ## locale:
-[1] LC_CTYPE=en_US.UTF-8 LC_NUMERIC=C
-[3] LC_TIME=fr_BE.UTF-8 LC_COLLATE=en_US.UTF-8
-[5] LC_MONETARY=fr_BE.UTF-8 LC_MESSAGES=en_US.UTF-8
-[7] LC_PAPER=fr_BE.UTF-8 LC_NAME=C
-[9] LC_ADDRESS=C LC_TELEPHONE=C
-[11] LC_MEASUREMENT=fr_BE.UTF-8 LC_IDENTIFICATION=C
+[1] LC_CTYPE=en_US.UTF-8 LC_NUMERIC=C \
+[3] LC_TIME=fr_BE.UTF-8 LC_COLLATE=en_US.UTF-8 \
+[5] LC_MONETARY=fr_BE.UTF-8 LC_MESSAGES=en_US.UTF-8 \
+[7] LC_PAPER=fr_BE.UTF-8 LC_NAME=C \
+[9] LC_ADDRESS=C LC_TELEPHONE=C \
+[11] LC_MEASUREMENT=fr_BE.UTF-8 LC_IDENTIFICATION=C \
 
 time zone: Europe/Brussels
 tzcode source: system (glibc)
