@@ -48,9 +48,6 @@ suppressMessages({
 endothelial_cells <- readRDS("../01-EndothelialCells_Preprocessing/endothelial_cells.rds")
 ```
 
-```{r, message=FALSE, warning=FALSE, results= "hide", echo=FALSE}
-endothelial_cells <- subset(endothelial_cells, PBSLPS %in% "PBS")
-```
 
 # Reclustering the cells
 ```{r, message=FALSE, warning=FALSE, results= "hide"}
