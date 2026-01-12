@@ -1,0 +1,228 @@
+---
+title: "3-Perturbation Score"
+author: "Joan Abinet"
+date: "`r format (Sys.time(), format='%Y-%m-%d %H:%M:%S %z')`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+  header-includes:
+    -|
+    ```{=latex}
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+      breaksymbolleft={}, 
+      showspaces = false,
+      showtabs = false,
+      breaklines,
+      commandchars=\\\{\}
+    }
+    ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 65), tidy = TRUE)
+```
+
+\newpage
+
+# Introduction
+
+Differentially expressed genes (DEGs) between the MarNeu depleted and control conditions were identified for each cluster using the FindMarkers function from the Seurat package. Genes with an adjusted p-value < 0.05 and an average log fold change (logFC) > 0.25 or < -0.25 were considered significantly differentially expressed between the two conditions.
+
+# Loading packages
+```{r}
+suppressMessages({
+  library(dplyr)
+  library(Seurat)
+  library(patchwork)
+  library(ggplot2)
+  library(formatR)
+  library(dittoSeq)
+  library(ggrepel)
+  library(xlsx)
+  library(viridis)
+})
+```
+
+# Loading annotated Cell
+```{r}
+endothelial_cells <- readRDS("../02-Clustering_Endo/endothelial_cells_annotated.rds")
+```
+
+# Perturbation score Day 14
+
+## calculating number of gene
+```{r, message=FALSE, warning=FALSE}
+for (celltype in unique(endothelial_cells$CellType)) {
+  
+  sub_endothelial_cells <- subset(endothelial_cells, CellType %in% celltype)
+  
+  Markers_long <- FindMarkers(sub_endothelial_cells, ident.1 = "PBS", ident.2 = c("aCXCR2-D14","aLy6G-D14"), min.pct = 0.1, group.by = "Condition", logfc.threshold = 0.25)
+  
+  Markers_long <- Markers_long[Markers_long$p_val_adj < 0.05,]
+  #write.xlsx(Markers_long[order(Markers_long$avg_log2FC, decreasing = T),], "Plot/DE_gene_J14.xlsx", sheetName = celltype, col.names = T, append = T)
+  
+  print(paste0("The number of DEG for ",celltype," is ", length(rownames(Markers_long))))
+  
+}
+```
+
+## Feature Plot DEG number
+```{r, message=FALSE, warning=FALSE}
+endothelial_cells$DEG_num_long <- endothelial_cells$CellType
+levels(endothelial_cells$DEG_num_long) <- c(65,16,22,2,21,1,13)
+
+levels_as_integers <- as.integer(levels(endothelial_cells$DEG_num_long))
+endothelial_cells$DEG_num_long <- levels_as_integers[as.integer(endothelial_cells$DEG_num_long)]
+
+FeaturePlot(endothelial_cells, features = "DEG_num_long")
+#ggsave("Plot/DEG_number_long.pdf", width = 8, height = 5)
+```
+
+# Create VolcanoPlot
+```{r}
+create_volcanoplt <- function(subtype, list_gene_name, Day){
+  
+  endothelial_cells_subset <-subset(endothelial_cells, CellType %in% subtype)
+  
+  Markers_j14 <- FindMarkers(endothelial_cells_subset, ident.1 = "PBS", ident.2 = c(paste0("aCXCR2-",Day),paste0("aLy6G-",Day)), min.pct = 0.25, group.by = "Condition", logfc.threshold = 0)
+
+Markers_j14$category <- ifelse(Markers_j14$p_val_adj < 0.05 & abs(Markers_j14$avg_log2FC) > 0.25, "overexpressed",ifelse(Markers_j14$p_val_adj < 0.05 & Markers_j14$avg_log2FC < 0.25, "significative",
+                             "no significant"))
+
+Markers_j14 <- Markers_j14[order(Markers_j14$avg_log2FC),]
+Markers_j14$Gene <- rownames(Markers_j14)
+
+
+#order <- c(1,2,5,6,12,14,15,19,27)
+# gene_to_highlight <- c("Klf2", "Klf4", "Uba52", "Rps28", "Dusp1", "Plaur", "Rpl39", "Rpl37a", "Ifi47", "Tap1", "Gadd45g", "Wars", "Gbp4", "Igtp", "H2-DMa", "H2-Aa", "H2-Ab1", "H2-Eb1", "Cd74")
+# Markers_j14$label <- ifelse(rownames(Markers_j14) %in% gene_to_highlight, rownames(Markers_j14), NA)
+
+ggplot(data = Markers_j14, aes(x = avg_log2FC, y = -log10(p_val_adj), col = category))+
+  geom_point(size = 2, alpha = 1) + 
+  theme_classic()+
+  scale_color_manual(values = c("black", "red", "blue"))+
+  geom_text_repel(data = filter(Markers_j14, Gene %in% list_gene_name), size = 4, aes(label= list_gene_name, fontface = "italic"), colour = "black", force = 4)+
+  NoLegend() +
+  ylab(expression(-Log[10]*" P"))+
+  xlab("LogFoldChange")+
+  theme()+
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", col = "grey")+
+  geom_vline(xintercept = c(-0.25,0.25), linetype = "dashed", col = "grey")
+
+}
+```
+
+
+## Volcano_plot in gCap
+```{r, message=FALSE, warning=FALSE}
+list_gene_name <- c("Klf2", "Klf4", "Uba52", "Rps28", "Dusp1", "Plaur", "Rpl39", "Rpl37a", "Ifi47", "Tap1", "Gadd45g", "Wars", "Gbp4", "Igtp", "H2-DMa", "H2-Aa", "H2-Ab1", "H2-Eb1", "Cd74")
+
+create_volcanoplt("1 general capillaries", list_gene_name, "D14")
+```
+
+## Volcano_plot in aCap
+```{r, message=FALSE, warning=FALSE}
+gene_to_highlight <- c("Klf2", "Klf4", "Hspa8", "Rsrp1", "Tsc22d3", "Klf6", "Dnajb1", "Kitl", "Hspa1a", "Ly6c1", "Plekho1", "Pim3", "Scgb1a1")
+
+create_volcanoplt("2 aerocyte capilaries", gene_to_highlight, "D14")
+```
+
+
+# Perturbation score Day 3
+
+## calculating number of gene
+```{r}
+for (celltype in unique(endothelial_cells$CellType)) {
+  
+  endothelial_cells_subset <- subset(endothelial_cells, CellType %in% celltype)
+  
+  Markers_short <- FindMarkers(endothelial_cells_subset, ident.1 = "PBS", ident.2 = c("aCXCR2-D3","aLy6G-D3"), min.pct = 0.1, group.by = "Condition", logfc.threshold = 0.25)
+  
+  Markers_short <- Markers_short[Markers_short$p_val_adj < 0.05,]
+  #write.xlsx(Markers_short[order(Markers_short$avg_log2FC, decreasing = T),], "Plot/DE_gene_J3.xlsx", sheetName = celltype, col.names = T, append = T)
+  
+  print(paste0("The number of DEG for ",celltype," is ", length(rownames(Markers_short))))
+  
+}
+```
+
+## Feature Plot DEG number
+```{r}
+endothelial_cells$DEG_num_long <- endothelial_cells$CellType
+levels(endothelial_cells$DEG_num_long) <- c(72,27,46,0,28,1,16)
+
+levels_as_integers <- as.integer(levels(endothelial_cells$DEG_num_long))
+endothelial_cells$DEG_num_long <- levels_as_integers[as.integer(endothelial_cells$DEG_num_long)]
+
+FeaturePlot(endothelial_cells, features = "DEG_num_long")
+# ggsave("Plot/DEG_number_short.pdf", width = 8, height = 5)
+```
+
+## Volcano_plot in gCap
+```{r}
+gene_display <- c("Klf2", "Klf4", "Rps28", "Uba52", "Cdkn1a", "Rpl39", "Tap1", "Ifi47", "Gbp4", "Igtp", "H2-DMa", "H2-DMb1", "H2-Aa", "H2-Ab1", "H2-Eb1", "Cd74")
+create_volcanoplt("1 general capillaries", gene_display, "D3")
+```
+
+## Volcano_plot in aCap
+```{r, message=FALSE, warning=FALSE}
+gene_to_highlight <- c("Klf2", "Klf4", "Hspa8", "Rhob", "Rps29", "Klf6", "Fosb", "Kitl", "Serpine1", "Myadm", "Clu", "Hyal2", "Scgb1a1")
+
+create_volcanoplt("2 aerocyte capilaries", gene_to_highlight, "D3")
+```
+
+
+
+# Dotplot of perturbated genes in gCap
+```{r, message=FALSE, warning=FALSE}
+DotPlot(endothelial_cells_subset, features = c("Cd74", "H2-Ab1", "H2-Eb1", "Vwf", "H2-DMa", "H2-DMb1", "Klf2", "Klf4", "Klf6"), group.by = "Condition")+ theme(axis.text.x = element_text(angle = 54, hjust = 1))+ scale_color_gradientn(colours = viridis(50))
+```
+
+# Dotplot of mechanosensing and shear response genes
+```{r, message=FALSE, warning=FALSE}
+for (celltype in unique(endothelial_cells$CellType)) {
+  
+  endothelial_cells_subset <- subset(endothelial_cells, CellType %in% celltype)
+  endothelial_cells_subset <- subset(endothelial_cells_subset, Condition %in% c("aCXCR2-D14",  "aLy6G-D14", "PBS" ))
+  
+  DotPlot(endothelial_cells_subset, features = c("Klf2", "Klf4", "Txnip", "Dusp1", "Atf3", "Fosb", "Per1", "Plaur", "Emp1", "S1pr1"), group.by = "Condition") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  
+    scale_color_gradientn(colours = viridis(50))
+  # ggsave(paste0("new_plot/dotplot_",celltype,".pdf"), width = 9, height = 6)
+
+}
+```
+
+# Antigen presentation
+```{r, message=FALSE, warning=FALSE}
+Antigen_presentation <- c("Cd74", "H2-Eb1", "H2-Ab1", "H2-Aa", "H2-DMa", "H2-DMb1", "H2-T23", "H2-Q6", "H2-Q7", "Tap1")
+
+DotPlot(endothelial_cells_subset, features = Antigen_presentation, group.by = "Condition")+ theme(axis.text.x = element_text(angle = 54, hjust = 1))+  
+  scale_color_gradientn(colours = viridis(50))
+```
+
+# Interferon response - Endothelial - Other : feature upregulated in PBS
+```{r, message=FALSE, warning=FALSE}
+# Interferon response - Endothelial - Other : feature upregulated in PBS
+feature_receptor <- c("Ifi47", "Igtp", "Gbp4", "Gja4", "Vwf", "Npr3", "Gm12216", "Gm4951")
+
+DotPlot(endothelial_cells_subset, features = feature_receptor, group.by = "Condition")+ theme(axis.text.x = element_text(angle = 54, hjust = 1))+  
+  scale_color_gradientn(colours = viridis(50))
+#ggsave("new_plot/dotplot_gcap_upregulate.pdf", width = 8, height = 5)
+```
+
+# Shear-responsive TFS - Negative regulation apoptosis - Ribosomal - Other : feature downregulated in PBS
+```{r, message=FALSE, warning=FALSE}
+feature_ligand <- c("Klf2", "Klf4", "Klf6", "Klf9", "Per1", "Dusp1", "Cdkn1a", "Uba52", "Rps28", "Rpl39", "Emp1", "S1pr1", "Arl4a")
+
+DotPlot(endothelial_cells_subset, features = feature_ligand, group.by = "Condition")+ theme(axis.text.x = element_text(angle = 54, hjust = 1))+  
+  scale_color_gradientn(colours = viridis(50))
+#ggsave("new_plot/dotplot_gcap_downregulate.pdf", width = 8, height = 5)
+```
+
+
+```{r}
+sessionInfo()
+```
+
