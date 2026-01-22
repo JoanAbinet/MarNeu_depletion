@@ -1,4 +1,4 @@
-Include all the codes for bioinformatics analysis in **Lung-marginated neutrophils regulate capillary blood flow to safeguard blood oxygenation and endothelial fitness.**
+Include all the codes for bioinformatics analysis in **Lung-marginated neutrophils tune capillary perfusion to support endothelial fitness and gas exchange.**
 
 # Session info
 R version 4.3.3 (2024-02-29) \
